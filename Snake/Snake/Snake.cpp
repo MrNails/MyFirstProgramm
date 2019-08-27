@@ -7,8 +7,7 @@
 #include <conio.h>
 #include "Game.h"
 
-using std::cin;
-using std::cout;
+using namespace std;
 
 template<typename TypeName>
 void Check_Func(TypeName _var) {
@@ -23,10 +22,12 @@ void Check_Func(TypeName _var) {
 
 int main()
 {
+	
 	int size;
-	while (true) {
+
+ 	while (true) {
 		system("CLS");
-		cout << "Select field size:\n1 - 10x10\n2 - 20x20\n3 - 30x30\nEsc - Exit\n";
+		cout << "Select field size:\n1 - 10x10\n2 - 20x20(default)\n3 - 30x30\nEsc - Exit\n";
 		switch (_getch())
 		{
 		case 49: size = 10; break;
@@ -34,8 +35,7 @@ int main()
 		case 51: size = 30; break;
 		case 27: return 0;
 		default:
-			cout << "Default filed zone 3x3";
-			size = 5;
+			size = 20;
 			break;
 		}
 		system("CLS");

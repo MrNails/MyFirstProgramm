@@ -9,10 +9,10 @@ using namespace std;
 /*
 _coord[?][0] - x
 _coord[?][1] - y
-_coord[?][2] - состояние движения
+_coord[?][2] - state of motion
 */
 
-/*Конструкторы, которые инициализируют поле, и массив координат*/
+/*Constructors that initialize the field and array of coordinates*/
 Game::Game() : _gameover(false), _form_x(20), _form_y(20) {
 	_fruit_x = 1 + rand() % (_form_x - 2);
 	_fruit_y = 1 + rand() % (_form_y - 2);
@@ -23,6 +23,7 @@ Game::Game() : _gameover(false), _form_x(20), _form_y(20) {
 	}
 	_coord[0][0] = _form_x / 2;
 	_coord[0][1] = _form_y / 2;
+	_coord[0][2] = -1;
 }
 
 Game::Game(const int _form_x_, const int _form_y_) : _gameover(false), _form_x(_form_x_), _form_y(_form_y_) {
@@ -35,13 +36,15 @@ Game::Game(const int _form_x_, const int _form_y_) : _gameover(false), _form_x(_
 	}
 	_coord[0][0] = _form_x / 2;
 	_coord[0][1] = _form_y / 2;
+	_coord[0][2] = -1;
 }
 
-/*Вывод поля и змейки на экран*/
+/*Displaying the field and the snake on the screen*/
 void Game::Display() {
 	COORD coord = { 0, 0 };											
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);	//Нужно для того, чтобы экран не мерцал при перезаписи поля
-	cout << "\nPoints: " << _points << ", Esc -> Exit\n";
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);	//It is necessary so that the screen does not flicker when overwriting a field
+
+	cout << "Points: " << _points << ", Esc -> Exit\nMove -> wasd(in English layout)\n";
 	for (int i = 0; i < _form_y; i++) {
 		for (int j = 0; j < _form_x; j++) {
 			if (i == 0 || i == _form_y - 1) cout << char(254);
@@ -55,7 +58,7 @@ void Game::Display() {
 }
 
 
-/*Проверка массива хвоста на наличие совпадение с координатной сеткой*/
+/*Check tail matching with coordinates*/
  bool Game::CheckMethod(int i, int j) {
 	for (int count = 0; count < _length; count++) {
 		if (_coord[count][0] == j && _coord[count][1] == i) return 1;
@@ -64,7 +67,7 @@ void Game::Display() {
 }
 
 void Game::Touch() {
-	for (int i = _length - 1; i > 0; i--) {		/*Передача всему хвосту навправлений*/
+	for (int i = _length - 1; i > 0; i--) {		//Snake Direction Status
 		_coord[i][2] = _coord[i - 1][2];
 	}
 
@@ -75,31 +78,31 @@ void Game::Touch() {
 			_coord[0][2] = 0; _coord[0][0]--;
 		}
 		else _coord[0][0]++;
-		break;											 //движение влево
+		break;													//move left
 	case 's':
 		if (_coord[0][2] != 3 || _length == 1) {
 			_coord[0][2] = 1; 
 			_coord[0][1]++;
 		} 
 		else _coord[0][1]--;
-		break;											//движение вниз
+		break;													//move dawn
 	case 'd':
 		if (_coord[0][2] != 0 || _length == 1) {
 			_coord[0][2] = 2;
 			_coord[0][0]++;
 		}
 		else _coord[0][0]--;
-		break;											//движение вправо
+		break;													//move rigth
 	case 'w':
 		if (_coord[0][2] != 1 || _length == 1) {
 			_coord[0][2] = 3;
 			_coord[0][1]--;
 		}
 		else _coord[0][1]++;
-		break;											//движение вверх
+		break;													//move up
 	case 27: _gameover = true; _exif_flag = 1; break;
 		default:
-			if (_coord[0][2] == 0) _coord[0][0]--;				//Здесь тоже костыль на движение головы
+			if (_coord[0][2] == 0) _coord[0][0]--;				//default head movement
 			else if (_coord[0][2] == 1) _coord[0][1]++;
 			else if (_coord[0][2] == 2) _coord[0][0]++;
 			else if (_coord[0][2] == 3) _coord[0][1]--;
@@ -107,7 +110,7 @@ void Game::Touch() {
 	}
 }
 
-/*Логика поведения змейки(в стене, в самой себе, в фрукте и награда за прохождение игры)*/ 
+/*Snake behavior logic*/ 
 void Game::Logic() {
 	if (_coord[0][0] == 0 || _coord[0][1] == 0 || _coord[0][1] == _form_y - 1 || _coord[0][0] == _form_x - 1) _gameover = true;		
 	for (int i = 1; i < _length; i++) {																								
@@ -119,9 +122,9 @@ void Game::Logic() {
 	if (_coord[0][0] == _fruit_x && _coord[0][1] == _fruit_y) {
 		_points += 10;
 		_length++;
-		if (_coord[0][2] == 0 && _length == 2) { _coord[1][0] = _coord[0][0] + 1;  _coord[1][1] = _coord[0][1]; }			//Эти 4 строчки нужны для того, чтобы 
-		else if (_coord[0][2] == 1 && _length == 2) { _coord[1][1] = _coord[0][1] - 1;	_coord[1][0] = _coord[0][0]; }		//номарльно работал хвост и они работают 
-		else if (_coord[0][2] == 2 && _length == 2) { _coord[1][0] = _coord[0][0] - 1;	_coord[1][1] = _coord[0][1]; }		//1 раз(очень сильный костыль)
+		if (_coord[0][2] == 0 && _length == 2) { _coord[1][0] = _coord[0][0] + 1;  _coord[1][1] = _coord[0][1]; }			//These 4 lines are needed in order
+		else if (_coord[0][2] == 1 && _length == 2) { _coord[1][1] = _coord[0][1] - 1;	_coord[1][0] = _coord[0][0]; }		//for the tail to work normally and
+		else if (_coord[0][2] == 2 && _length == 2) { _coord[1][0] = _coord[0][0] - 1;	_coord[1][1] = _coord[0][1]; }		//they work 1 time
 		else if (_coord[0][2] == 3 && _length == 2) { _coord[1][1] = _coord[0][1] + 1;	_coord[1][0] = _coord[0][0]; }
 		else {
 			_coord[_length - 1][0] = _coord[_length - 2][0];
@@ -136,6 +139,7 @@ void Game::Logic() {
 	}
 }
 
+
 void Game::FoodSpawn() {
 	for (int i = 0; i < _length && !_gameover; i++) {
 		if (_coord[i][0] == _fruit_x && _coord[i][1] == _fruit_y) {
@@ -145,7 +149,8 @@ void Game::FoodSpawn() {
 		}
 	}
 }
-/*Изменение координат объектов хвоста*/
+
+/*Changing the coordinates of tail objects*/
 void Game::Snake_Tail() {
 	for (int i = 1; i < _length; i++) {
 		if (_coord[i][2] == 0) _coord[i][0]--;
@@ -166,7 +171,7 @@ bool Game::StartGame() {
 	return _exif_flag;
 }
 
-/*Удаляет выделеный массив для змеи*/
+/*Delete _coord*/
 Game::~Game() {
 	for (int i = 0; i < _length; i++) {
 		delete _coord[i];
