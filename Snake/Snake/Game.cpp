@@ -67,11 +67,11 @@ void Game::Display() {
 }
 
 void Game::Touch() {	
-	for (int i = _length - 1; i > 0; i--) {		//Snake Direction Status
+	for (int i = _length - 1; i > 0; i--) {						//Snake Direction Status
 		_coord[i][2] = _coord[i - 1][2];
 	}
 
-	Sleep(500);
+	Sleep(370);
 	if (_kbhit()) {												//automatic snake movement
 		comand = tolower(_getch());
 	}
