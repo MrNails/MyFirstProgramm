@@ -44,7 +44,7 @@ void Game::Display() {
 	COORD coord = { 0, 0 };											
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);	//It is necessary so that the screen does not flicker when overwriting a field
 
-	cout << "Points: " << _points << ", Esc -> Exit\nMove -> wasd(in English layout)\n";
+	cout << "Points: " << _points << ", Esc -> Exit, Backspace -> Main menu\nMove -> wasd(in English layout)\n";
 	for (int i = 0; i < _form_y; i++) {
 		for (int j = 0; j < _form_x; j++) {
 			if (i == 0 || i == _form_y - 1) cout << char(254);
@@ -66,12 +66,17 @@ void Game::Display() {
 	return 0;
 }
 
-void Game::Touch() {
-	for (int i = _length - 1; i > 0; i--) {		//Snake Direction Status
+void Game::Touch() {	
+	for (int i = _length - 1; i > 0; i--) {						//Snake Direction Status
 		_coord[i][2] = _coord[i - 1][2];
 	}
 
-	switch (tolower(_getch()))
+	Sleep(370);
+	if (_kbhit()) {												//automatic snake movement
+		comand = tolower(_getch());
+	}
+
+	switch (comand)
 	{
 	case 'a':
 		if (_coord[0][2] != 2 || _length == 1) {
@@ -100,13 +105,19 @@ void Game::Touch() {
 		}
 		else _coord[0][1]++;
 		break;													//move up
-	case 27: _gameover = true; _exif_flag = 1; break;
+	case 27: _gameover = true; _exit_flag = 1; break;
+	case 8: _gameover = true; _exit_flag = 0;
 		default:
 			if (_coord[0][2] == 0) _coord[0][0]--;				//default head movement
 			else if (_coord[0][2] == 1) _coord[0][1]++;
 			else if (_coord[0][2] == 2) _coord[0][0]++;
 			else if (_coord[0][2] == 3) _coord[0][1]--;
 			break;
+	}
+
+	while (_kbhit())											//clear input buffer
+	{
+		_getch();
 	}
 }
 
@@ -168,7 +179,7 @@ bool Game::StartGame() {
 		Snake_Tail();
 		FoodSpawn();
 	}
-	return _exif_flag;
+	return _exit_flag;
 }
 
 /*Delete _coord*/
