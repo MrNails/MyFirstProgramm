@@ -5,14 +5,15 @@
 class Game {
 private:
 	bool _gameover, 
-		_exif_flag = 0;
+		_exit_flag = 0;
 	const int _form_x, 
 		_form_y;
 	int _fruit_x,
 		_fruit_y,
 		_points = 0,
 		_length = 1,
-		**_coord;
+		**_coord,
+		comand = 0;
 public:
 	Game();
 	Game(const int, const int);
